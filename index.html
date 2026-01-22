@@ -361,6 +361,12 @@
             text-align: center;
             position: relative;
         }
+
+        /* Hide the back address when envelope is flipped */
+        .envelope-wrapper.flipped .back-address {
+            display: none !important;
+        }
+
     </style>
 </head>
 <body>
@@ -389,10 +395,10 @@
                         <div class="left-fold"></div>
                     </div>
                 </div>
-                <div class="envelope-address">
+                <div class="envelope-address back-address">
                     <div class="to-text">To: <span id="guestNameBack">Bestie</span></div>
                     <div class="from-text">From: Dalia</div>
-                </div>
+                </div>                
             </div>
 
             <!-- Front of envelope -->
@@ -452,8 +458,6 @@
                 // First click: flip envelope to front
                 envelope.classList.add('flipped');
                 instruction.textContent = 'Click to open the envelope';
-                backAddress.style.display = 'none'; // hide it immediately
-
             } else if (clickCount === 2) {
                 // Second click: open flap
                 envelope.classList.add('opened');
