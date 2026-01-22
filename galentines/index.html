@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galentine's Day Invitation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Great Vibes', cursive;
+            background: linear-gradient(135deg, #ffc0cb 0%, #ffb6c1 50%, #ffc0cb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            perspective: 1000px;
+            position: relative;
+            width: 400px;
+            height: 300px;
+            z-index: 1;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 20px;
+            }
+
+            .container {
+                transform: scale(0.75);
+            }
+        }
+
+        .envelope-wrapper.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .envelope-back,
+        .envelope-front {
+            position: absolute;
+            width: 400px;
+            height: 300px;
+            backface-visibility: hidden;
+        }
+
+        .envelope-back {
+            position: absolute;
+            width: 400px;
+            height: 300px;
+            backface-visibility: hidden;
+        }
+
+        .envelope-back .to-text {
+            font-size: 28px;
+            color: #d63384;
+        }
+
+        .envelope-back .from-text {
+            font-size: 24px;
+            color: #666;
+        }
+
+        .envelope-back .invited-text {
+            font-size: 20px;
+            color: #d63384;
+            margin-top: 5px;
+        }
+
+        .envelope-address {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 3;
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .envelope-address .to-text {
+            font-size: 24px;
+            color: #d63384;
+            margin-bottom: 5px;
+        }
+
+        .envelope-address .from-text {
+            font-size: 20px;
+            color: #666;
+        }
+
+        .stamp {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            font-size: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stamp img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Make back envelope triangles all white */
+        .envelope-back .animated-mail .top-fold {
+            border-color: #ffffff transparent transparent transparent;
+        }
+
+        .envelope-back .animated-mail .back-fold {
+            background: #ffffff;
+        }
+
+        .envelope-back .animated-mail .left-fold {
+            border-color: transparent transparent transparent #ffffff;
+        }
+
+        .envelope-back .animated-mail .body {
+            border-color: transparent transparent #ffffff transparent;
+        }
+
+        .envelope-front {
+            transform: rotateY(180deg);
+        }
+
+        .letter-image {
+            position: absolute;
+            width: 400px;
+            height: 300px;
+            top: 0;
+            left: 0;
+        }
+
+        .animated-mail {
+            position: absolute;
+            height: 300px;
+            width: 400px;
+            transition: 0.4s;
+            top: 0;
+            left: 0;
+        }
+
+        .animated-mail .body {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 0 200px 400px;
+            border-color: transparent transparent #ffffff transparent;
+            z-index: 2;
+        }
+
+        .animated-mail .top-fold {
+            position: absolute;
+            top: 100px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 100px 200px 0 200px;
+            transform-origin: 50% 0%;
+            transition: transform 0.4s 0.4s, z-index 0.2s 0.4s;
+            border-color: #f8f9fa transparent transparent transparent;
+            z-index: 2;
+        }
+
+        .animated-mail .back-fold {
+            position: absolute;
+            bottom: 0;
+            width: 400px;
+            height: 200px;
+            background: #f8f9fa;
+            z-index: 0;
+        }
+
+        .animated-mail .left-fold {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 100px 0 100px 200px;
+            border-color: transparent transparent transparent #e9ecef;
+            z-index: 2;
+        }
+
+        .animated-mail .letter {
+            left: 40px;
+            bottom: 0px;
+            position: absolute;
+            width: 320px;
+            height: 120px;
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe0e9 100%);
+            z-index: 1;
+            overflow: hidden;
+            transition: 0.4s 0.2s;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .animated-mail .letter .letter-border {
+            height: 20px;
+            width: 100%;
+            background: repeating-linear-gradient(-45deg, #ffc0cb, #ffc0cb 8px, transparent 8px, transparent 18px);
+        }
+
+        .animated-mail .letter .letter-content {
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .letter-stamp-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: #d63384;
+            border-radius: 50%;
+            opacity: 0.7;
+            border: 3px solid #c2185b;
+            z-index: 10;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .envelope-wrapper.opened .letter-stamp-seal {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .letter-stamp-seal img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .letter-title {
+            font-size: 36px;
+            color: #c2185b;
+            margin-bottom: 10px;
+        }
+
+        .letter-title img {
+            max-width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            display: block;
+            margin: -15px auto 0;
+        }
+
+        .letter-text {
+            font-size: 24px;
+            color: #d63384;
+            margin: 10px 0;
+        }
+
+        .hearts {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        .letter-details {
+            font-size: 18px;
+            color: #666;
+            font-family: Georgia, serif;
+            font-style: italic;
+        }
+
+        #customImage {
+            max-width: 90%;
+            max-height: 200px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .shadow {
+            position: absolute;
+            top: 320px;
+            left: 50%;
+            width: 400px;
+            height: 30px;
+            transition: 0.4s;
+            transform: translateX(-50%);
+            border-radius: 100%;
+            background: radial-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+        }
+
+        .envelope-wrapper.opened .shadow {
+            top: 370px;
+        }
+
+        .envelope-wrapper.opened .animated-mail {
+            transform: translateY(50px);
+        }
+
+        .envelope-wrapper.opened .animated-mail .top-fold {
+            transition: transform 0.4s, z-index 0.2s;
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+
+        .envelope-wrapper.opened .animated-mail .letter {
+            height: 500px;
+        }
+
+        .envelope-wrapper.opened .shadow {
+            width: 250px;
+        }
+
+        .instruction {
+            position: absolute;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+            font-family: Arial, sans-serif;
+            font-style: italic;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .envelope-back .letter-content {
+            text-align: center;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="confettiCanvas"></canvas>
+    <div class="container">
+        <div class="envelope-wrapper" id="envelope">
+
+            <div class="envelope-back">
+                <div class="letter-image">
+                    <div class="animated-mail">
+                        <div class="back-fold"></div>
+                        <div class="letter">
+                            <div class="letter-border"></div>
+                            <div class="letter-stamp-seal">
+                                <img src="seal.png" alt="" onerror="this.style.display='none';">
+                            </div>
+                            <div class="letter-content">
+                                <div class="letter-title">
+                                    <img src="valentine.png" alt="Galentine's Day!" onerror="this.style.display='none'; this.parentElement.innerHTML='Galentine\'s Day!';">
+                                </div>
+                                <img id="customImage" src="letter.png" alt="" onerror="this.style.display='none';">
+                            </div>
+                        </div>
+                        <div class="top-fold"></div>
+                        <div class="body"></div>
+                        <div class="left-fold"></div>
+                    </div>
+                </div>
+                <div class="envelope-address">
+                    <div class="to-text">To: <span id="guestNameBack">Bestie</span></div>
+                    <div class="from-text">From: Dalia</div>
+                </div>
+            </div>
+
+            <!-- Front of envelope -->
+            <div class="envelope-front">
+                <div class="letter-image">
+                    <div class="animated-mail">
+                        <div class="back-fold"></div>
+                        <div class="letter">
+                            <div class="letter-border"></div>
+                            <div class="letter-stamp-seal">
+                                <img src="seal.png" alt="" onerror="this.style.display='none';">
+                            </div>
+                            <div class="letter-content">
+                                <div class="letter-title">
+                                    <img src="valentine.png" alt="Galentine's Day!" onerror="this.style.display='none'; this.parentElement.innerHTML='Galentine\'s Day!';">
+                                </div>
+                                <img id="customImage" src="letter.png" alt="" onerror="this.style.display='none';">
+                            </div>
+                        </div>
+                        <div class="top-fold"></div>
+                        <div class="body"></div>
+                        <div class="left-fold"></div>
+                    </div>
+                    <div class="shadow"></div>
+                </div>
+            </div>
+        </div>
+        <div class="instruction" id="instruction">Click to flip the envelope</div>
+    </div>
+
+    <script>
+        // Get guest name from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const guestName = urlParams.get('name') || 'Bestie';
+        document.getElementById('guestNameBack').textContent = guestName;
+
+        // Get custom image from URL parameter
+        const customImageSrc = urlParams.get('image');
+        const customImage = document.getElementById('customImage');
+        
+        if (customImageSrc) {
+            customImage.src = customImageSrc;
+            customImage.style.display = 'block';
+            customImage.onload = function() {
+                customImage.style.display = 'block';
+            };
+        }
+
+        const envelope = document.getElementById('envelope');
+        const instruction = document.getElementById('instruction');
+        let clickCount = 0;
+
+        envelope.addEventListener('click', function() {
+            clickCount++;
+            
+            if (clickCount === 1) {
+                // First click: flip envelope to front
+                envelope.classList.add('flipped');
+                instruction.textContent = 'Click to open the envelope';
+            } else if (clickCount === 2) {
+                // Second click: open flap
+                envelope.classList.add('opened');
+                instruction.textContent = ' ';
+                startConfetti();
+            } else if (clickCount === 3) {
+                // Third click: fade instruction and start confetti
+                instruction.style.opacity = '0';
+            }
+        });
+
+        // Confetti functionality
+        let W = window.innerWidth;
+        let H = window.innerHeight;
+        const canvas = document.getElementById("confettiCanvas");
+        const context = canvas.getContext("2d");
+        const maxConfettis = 150;
+        const particles = [];
+        let confettiActive = false;
+
+        const possibleColors = [
+            "#FFB6C1", // Light Pink
+            "#FFC0CB", // Pink
+            "#FF69B4", // Hot Pink
+            "#FFB3D9", // Light Pink
+            "#FFA6C9", // Medium Pink
+            "#FF85B3", // Deep Pink
+            "#FFAEC9", // Pale Pink
+            "#FFD1DC", // Baby Pink
+            "#FF91A4"  // Rose Pink
+        ];
+
+        function randomFromTo(from, to) {
+            return Math.floor(Math.random() * (to - from + 1) + from);
+        }
+
+        function confettiParticle() {
+            this.x = Math.random() * W;
+            this.y = Math.random() * H - H;
+            this.r = randomFromTo(11, 33);
+            this.d = Math.random() * maxConfettis + 11;
+            this.color = possibleColors[Math.floor(Math.random() * possibleColors.length)];
+            this.tilt = Math.floor(Math.random() * 33) - 11;
+            this.tiltAngleIncremental = Math.random() * 0.07 + 0.05;
+            this.tiltAngle = 0;
+
+            this.draw = function() {
+                context.beginPath();
+                context.lineWidth = this.r / 2;
+                context.strokeStyle = this.color;
+                context.moveTo(this.x + this.tilt + this.r / 3, this.y);
+                context.lineTo(this.x + this.tilt, this.y + this.tilt + this.r / 5);
+                return context.stroke();
+            };
+        }
+
+        function Draw() {
+            if (!confettiActive) return;
+
+            requestAnimationFrame(Draw);
+            context.clearRect(0, 0, W, H);
+
+            for (let i = 0; i < maxConfettis; i++) {
+                particles[i].draw();
+            }
+
+            let particle = {};
+            for (let i = 0; i < maxConfettis; i++) {
+                particle = particles[i];
+
+                particle.tiltAngle += particle.tiltAngleIncremental;
+                particle.y += (Math.cos(particle.d) + 3 + particle.r / 2) / 2;
+                particle.tilt = Math.sin(particle.tiltAngle - i / 3) * 15;
+
+                if (particle.x > W + 30 || particle.x < -30 || particle.y > H) {
+                    particle.x = Math.random() * W;
+                    particle.y = -30;
+                    particle.tilt = Math.floor(Math.random() * 10) - 20;
+                }
+            }
+        }
+
+        function startConfetti() {
+            confettiActive = true;
+            canvas.width = W;
+            canvas.height = H;
+            
+            for (let i = 0; i < maxConfettis; i++) {
+                particles.push(new confettiParticle());
+            }
+            
+            Draw();
+        }
+
+        window.addEventListener("resize", function() {
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W;
+            canvas.height = H;
+        }, false);
+    </script>
+</body>
+</html>
