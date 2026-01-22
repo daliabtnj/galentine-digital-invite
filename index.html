@@ -458,6 +458,11 @@
                 // First click: flip envelope to front
                 envelope.classList.add('flipped');
                 instruction.textContent = 'Click to open the envelope';
+                // iOS fix: force repaint of the front envelope
+                const front = document.querySelector('.envelope-front');
+                front.style.display = 'none';
+                front.offsetHeight; // force reflow
+                front.style.display = 'block';
             } else if (clickCount === 2) {
                 // Second click: open flap
                 envelope.classList.add('opened');
